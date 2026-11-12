@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Financeiro 2027</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-main: #0b0c10;
+      --bg-card: #14171f;
+      --bg-subtle: #1c202b;
+      --border-color: rgba(255, 255, 255, 0.07);
+
+      --orange: #ff6b00;
+      --orange-soft: rgba(255, 107, 0, 0.14);
+
+      --green: #10b981;
+      --green-soft: rgba(16, 185, 129, 0.14);
+
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.14);
+
+      --text-white: #ffffff;
+      --text-gray: #94a3b8;
+      --text-muted: #64748b;
+
+      --radius: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-white);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 20px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .dashboard-container {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-dot {
+      width: 12px;
+      height: 28px;
+      border-radius: 4px;
+      background: var(--orange);
+      box-shadow: 0 0 14px rgba(255, 107, 0, 0.45);
+    }
+
+    .header-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-white);
+    }
+
+    .header-title p {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .month-select {
+      background: var(--bg-card);
+      color: var(--text-white);
+      border: 1px solid rgba(255, 107, 0, 0.4);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .month-select:hover,
+    .month-select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-soft);
+    }
+
+    /* 4 INDICADORES PRINCIPAIS */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--orange);
+    }
+
+    .kpi-card.card-expense::before {
+      background: var(--red);
+    }
+
+    .kpi-card.card-balance::before,
+    .kpi-card.card-savings::before {
+      background: var(--green);
+    }
+
+    .kpi-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kpi-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-gray);
+    }
+
+    .kpi-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    .tag-orange {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .tag-red {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .tag-green {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .kpi-amount {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-white);
+      letter-spacing: -0.5px;
+      margin-top: 2px;
+    }
+
+    .kpi-amount.text-green {
+      color: var(--green);
+    }
+
+    .kpi-amount.text-red {
+      color: var(--red);
+    }
+
+    .kpi-caption {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* 3 GRÁFICOS CENTRAIS */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1.18fr 1.24fr 1.18fr;
+      gap: 16px;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .chart-header h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-white);
+      letter-spacing: 0.2px;
+    }
+
+    .chart-header p {
+      font-size: 11.5px;
+      color: var(--text-gray);
+      margin-top: 2px;
+    }
+
+    .final-highlight {
+      background: var(--green-soft);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--green);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .canvas-box {
+      position: relative;
+      height: 250px;
+      width: 100%;
+    }
+
+    /* Lista limpa de categorias do Gráfico 2 (Valores e Percentuais na mesma linha) */
+    .donut-layout {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      height: 250px;
+    }
+
+    .canvas-box-donut {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      flex-shrink: 0;
+    }
+
+    .category-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-left: 16px;
+      border-left: 1px solid var(--border-color);
+    }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .cat-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-gray);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .cat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .cat-val {
+      font-family: var(--font-mono);
+      color: var(--text-white);
+      font-weight: 600;
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+
+    /* 4. PEQUENO QUADRO DE CONTROLE DE DEVEDORES (PARTE INFERIOR) */
+    .debtor-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--orange);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .debtor-title-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .debtor-badge {
+      background: var(--orange-soft);
+      color: var(--orange);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .debtor-title-area span.note {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+
+    .debtor-metrics {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .debtor-metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .debtor-metric-label {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-gray);
+      font-weight: 600;
+    }
+
+    .debtor-metric-value {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+
+    .debtor-metric-value.orange {
+      color: var(--orange);
+    }
+
+    @media (max-width: 1180px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .kpi-row {
+        grid-template-columns: 1fr;
+      }
+      .donut-layout {
+        flex-direction: column;
+        height: auto;
+      }
+      .category-legend {
+        border-left: none;
+        padding-left: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard-container">
+    <!-- CABEÇALHO E FILTRO POR MÊS -->
+    <header class="header">
+      <div class="header-brand">
+        <div class="brand-dot"></div>
+        <div class="header-title">
+          <h1>PLANEJAMENTO FINANCEIRO 2027</h1>
+          <p id="periodSubtitle">Visão Anual Consolidada • Janeiro a Dezembro de 2027</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <label for="monthFilter" class="filter-label">Filtrar por Mês:</label>
+        <select id="monthFilter" class="month-select" onchange="updateDashboard()">
+          <option value="ALL">Todos os Meses (2027)</option>
+          <option value="0">Janeiro (Ref. Dez/26)</option>
+          <option value="1">Fevereiro (Ref. Jan)</option>
+          <option value="2">Março (Ref. Fev)</option>
+          <option value="3">Abril (Ref. Mar)</option>
+          <option value="4">Maio (Ref. Abr)</option>
+          <option value="5">Junho (Ref. Mai)</option>
+          <option value="6">Julho (Ref. Jun)</option>
+          <option value="7">Agosto (Ref. Jul)</option>
+          <option value="8">Setembro (Ref. Ago)</option>
+          <option value="9">Outubro (Ref. Set)</option>
+          <option value="10">Novembro (Ref. Out)</option>
+          <option value="11">Dezembro (Ref. Nov)</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- 2. INDICADORES PRINCIPAIS (APENAS 4 CARDS) -->
+    <section class="kpi-row">
+      <!-- CARD 1: RECEITA TOTAL -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-title">Receita Total</span>
+          <span class="kpi-tag tag-orange" id="tagReceita">Entradas</span>
+        </div>
+        <div class="kpi-amount" id="valReceitaTotal">R$ 54.309,00</div>
+        <div class="kpi-caption" id="subReceitaTotal">Total de salários e bônus</div>
+      </div>
+
+      <!-- CARD 2: DESPESAS TOTAIS -->
+      <div class="kpi-card card-expense">
+        <div class="kpi-top">
+          <span class="kpi-title">Despesas Totais</span>
+          <span class="kpi-tag tag-red" id="tagDespesas">34,8% da Receita</span>
+        </div>
+        <div class="kpi-amount text-red" id="valDespesasTotais">R$ 18.921,00</div>
+        <div class="kpi-caption" id="subDespesasTotais">Total das contas e gastos</div>
+      </div>
+
+      <!-- CARD 3: SALDO DISPONÍVEL -->
+      <div class="kpi-card card-balance">
+        <div class="kpi-top">
+          <span class="kpi-title">Saldo Disponível</span>
+          <span class="kpi-tag tag-green" id="tagSaldo">65,2% Livre</span>
+        </div>
+        <div class="kpi-amount text-green" id="valSaldoDisponivel">R$ 35.388,00</div>
+        <div class="kpi-caption" id="subSaldoDisponivel">Quanto sobra após os gastos</div>
+      </div>
+
+      <!-- CARD 4: POUPANÇA ACUMULADA -->
+      <div class="kpi-card card-savings">
+        <div class="kpi-top">
+          <span class="kpi-title">Poupança Acumulada</span>
+          <span class="kpi-tag tag-green" id="tagPoupanca">Saldo Previsto</span>
+        </div>
+        <div class="kpi-amount text-green" id="valPoupancaAcumulada">R$ 35.388,00</div>
+        <div class="kpi-caption" id="subPoupancaAcumulada">Quanto estou conseguindo guardar</div>
+      </div>
+    </section>
+
+    <!-- 3. GRÁFICOS (SOMENTE 3 GRÁFICOS) -->
+    <section class="charts-grid">
+      <!-- GRÁFICO 1 – RECEITAS X DESPESAS -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h2>1. Receitas x Despesas</h2>
+            <p>Comparativo mensal entre quanto recebo e quanto gasto</p>
+          </div>
+        </div>
+        <div class="canvas-box">
+          <canvas id="chartRevVsExp"></canvas>
+        </div>
+      </div>
+
+      <!-- GRÁFICO 2 – DISTRIBUIÇÃO DAS DESPESAS -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h2>2. Distribuição das Despesas</h2>
+            <p>Participação de cada categoria nos gastos (R$ e %)</p>
+          </div>
+        </div>
+        <div class="donut-layout">
+          <div class="canvas-box-donut">
+            <canvas id="chartExpDonut"></canvas>
+          </div>
+          <div class="category-legend" id="expenseLegendList"></div>
+        </div>
+      </div>
+
+      <!-- GRÁFICO 3 – EVOLUÇÃO DA POUPANÇA -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h2>3. Evolução da Poupança</h2>
+            <p>Crescimento do saldo acumulado mês a mês</p>
+          </div>
+          <div class="final-highlight" id="finalSavingsHighlight">Final Previsto: R$ 35.388,00</div>
+        </div>
+        <div class="canvas-box">
+          <canvas id="chartSavingsLine"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. CONTROLE DE DEVEDORES (PEQUENO QUADRO INFERIOR) -->
+    <footer class="debtor-bar">
+      <div class="debtor-title-area">
+        <span class="debtor-badge">Controle de Devedores</span>
+        <span class="note">Valores a receber de terceiros</span>
+      </div>
+
+      <div class="debtor-metrics">
+        <div class="debtor-metric-item">
+          <span class="debtor-metric-label">Nome da Pessoa</span>
+          <span class="debtor-metric-value" id="debtorPersonName">Bianca</span>
+        </div>
+
+        <div class="debtor-metric-item">
+          <span class="debtor-metric-label" id="debtorScheduledLabel">Valor Previsto a Receber (2027)</span>
+          <span class="debtor-metric-value orange" id="debtorScheduledValue">R$ 16.629,00</span>
+        </div>
+
+        <div class="debtor-metric-item">
+          <span class="debtor-metric-label">Total Pendente (2027 + Jan/Fev 28)</span>
+          <span class="debtor-metric-value" id="debtorPendingTotal">R$ 18.641,00</span>
+        </div>
+
+        <div class="debtor-metric-item">
+          <span class="debtor-metric-label">Total Geral (2026+2027)</span>
+          <span class="debtor-metric-value" style="color: var(--text-gray);" id="debtorHistoricalTotal">R$ 22.410,00</span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const financialData = {
+      months: [
+        { name: 'Janeiro',   short: 'Jan', ref: 'Ref. Dezembro 2026' },
+        { name: 'Fevereiro', short: 'Fev', ref: 'Ref. Janeiro' },
+        { name: 'Março',     short: 'Mar', ref: 'Ref. Fevereiro' },
+        { name: 'Abril',     short: 'Abr', ref: 'Ref. Março' },
+        { name: 'Maio',      short: 'Mai', ref: 'Ref. Abril' },
+        { name: 'Junho',     short: 'Jun', ref: 'Ref. Maio' },
+        { name: 'Julho',     short: 'Jul', ref: 'Ref. Junho' },
+        { name: 'Agosto',    short: 'Ago', ref: 'Ref. Julho' },
+        { name: 'Setembro',  short: 'Set', ref: 'Ref. Agosto' },
+        { name: 'Outubro',   short: 'Out', ref: 'Ref. Setembro' },
+        { name: 'Novembro',  short: 'Nov', ref: 'Ref. Outubro' },
+        { name: 'Dezembro',  short: 'Dez', ref: 'Ref. Novembro' }
+      ],
+      revenues: {
+        salarioTotal: [4686, 4580, 4510, 4510, 4470, 4470, 6270, 4470, 4355, 3996, 3996, 3996]
+      },
+      expenses: [
+        { name: 'Casa',     color: '#ff6b00', values: [800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800] },
+        { name: 'Nubank',   color: '#ef4444', values: [556, 556, 512, 512, 405, 405, 365, 365, 365, 0,   0,   0]   },
+        { name: 'Dízimo',   color: '#f59e0b', values: [290, 290, 290, 290, 290, 290, 290, 290, 290, 290, 290, 290] },
+        { name: 'Débito',   color: '#3b82f6', values: [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150] },
+        { name: 'Itaú',     color: '#64748b', values: [0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]   },
+        { name: 'Internet', color: '#475569', values: [0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]   }
+      ],
+      saldoDisponivelMensal: [2890, 2784, 2758, 2758, 2825, 2825, 4665, 2865, 2750, 2756, 2756, 2756],
+      poupancaAcumuladaMensal: [2890, 5674, 8432, 11190, 14015, 16840, 21505, 24370, 27120, 29876, 32632, 35388],
+      debtor: {
+        name: 'Bianca',
+        monthly2027: [1696, 1590, 1520, 1520, 1480, 1480, 1480, 1480, 1365, 1006, 1006, 1006],
+        extra2028: 2012,
+        totalHistorical2026_2027: 22410
+      }
+    };
+
+    let chartRevExp = null;
+    let chartDonut = null;
+    let chartSavings = null;
+
+    function formatBRL(val) {
+      return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function formatPct(val) {
+      return Number(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+    }
+
+    function computeSeries() {
+      const monthlyRev = [...financialData.revenues.salarioTotal];
+      const monthlyExp = financialData.months.map((_, i) =>
+        financialData.expenses.reduce((acc, cat) => acc + cat.values[i], 0)
+      );
+      const monthlyAvailable = [...financialData.saldoDisponivelMensal];
+      const cumulativeSavings = [...financialData.poupancaAcumuladaMensal];
+      return { monthlyRev, monthlyExp, monthlyAvailable, cumulativeSavings };
+    }
+
+    function updateDashboard() {
+      const filterVal = document.getElementById('monthFilter').value;
+      const isAll = filterVal === 'ALL';
+      const mIdx = isAll ? null : parseInt(filterVal, 10);
+      const series = computeSeries();
+
+      let receitaTotal = 0;
+      let despesasTotais = 0;
+      let saldoDisponivel = 0;
+      let poupancaAcumulada = 0;
+
+      if (isAll) {
+        document.getElementById('periodSubtitle').textContent =
+          'Visão Anual Consolidada • Janeiro a Dezembro de 2027';
+        receitaTotal = series.monthlyRev.reduce((a, b) => a + b, 0);
+        despesasTotais = series.monthlyExp.reduce((a, b) => a + b, 0);
+        saldoDisponivel = series.monthlyAvailable.reduce((a, b) => a + b, 0);
+        poupancaAcumulada = series.cumulativeSavings[11];
+
+        document.getElementById('tagPoupanca').textContent = 'Saldo Previsto';
+        document.getElementById('subReceitaTotal').textContent = 'Total de salários e bônus';
+        document.getElementById('subSaldoDisponivel').textContent = 'Quanto sobra após os gastos';
+        document.getElementById('subPoupancaAcumulada').textContent = 'Quanto estou conseguindo guardar';
+      } else {
+        const mObj = financialData.months[mIdx];
+        document.getElementById('periodSubtitle').textContent =
+          `Mês Selecionado: ${mObj.name} de 2027 (${mObj.ref})`;
+        receitaTotal = series.monthlyRev[mIdx];
+        despesasTotais = series.monthlyExp[mIdx];
+        saldoDisponivel = series.monthlyAvailable[mIdx];
+        poupancaAcumulada = series.cumulativeSavings[mIdx];
+
+        document.getElementById('tagPoupanca').textContent = `Acumulado até ${mObj.short}`;
+        document.getElementById('subReceitaTotal').textContent = `Entradas de ${mObj.name}`;
+        document.getElementById('subSaldoDisponivel').textContent = `Sobra do mês de ${mObj.name}`;
+        document.getElementById('subPoupancaAcumulada').textContent = `Saldo acumulado até ${mObj.name}`;
+      }
+
+      const pctGasto = receitaTotal > 0 ? (despesasTotais / receitaTotal) * 100 : 0;
+      const pctLivre = receitaTotal > 0 ? (saldoDisponivel / receitaTotal) * 100 : 0;
+
+      document.getElementById('valReceitaTotal').textContent = formatBRL(receitaTotal);
+      document.getElementById('valDespesasTotais').textContent = formatBRL(despesasTotais);
+      document.getElementById('tagDespesas').textContent = `${formatPct(pctGasto)} da Receita`;
+      document.getElementById('valSaldoDisponivel').textContent = formatBRL(saldoDisponivel);
+      document.getElementById('tagSaldo').textContent = `${formatPct(pctLivre)} Livre`;
+      document.getElementById('valPoupancaAcumulada').textContent = formatBRL(poupancaAcumulada);
+
+      const debtor2027Total = financialData.debtor.monthly2027.reduce((a, b) => a + b, 0);
+      const debtorPendingAll = debtor2027Total + financialData.debtor.extra2028;
+
+      document.getElementById('debtorPersonName').textContent = financialData.debtor.name;
+      if (isAll) {
+        document.getElementById('debtorScheduledLabel').textContent = 'Valor Previsto a Receber (2027)';
+        document.getElementById('debtorScheduledValue').textContent = formatBRL(debtor2027Total);
+      } else {
+        const mName = financialData.months[mIdx].name;
+        document.getElementById('debtorScheduledLabel').textContent = `Previsto em ${mName}`;
+        document.getElementById('debtorScheduledValue').textContent = formatBRL(financialData.debtor.monthly2027[mIdx]);
+      }
+      document.getElementById('debtorPendingTotal').textContent =
+        `${formatBRL(debtor2027Total)} (2027) | ${formatBRL(debtorPendingAll)} (até Fev/28)`;
+      document.getElementById('debtorHistoricalTotal').textContent =
+        formatBRL(financialData.debtor.totalHistorical2026_2027);
+
+      renderChart1RevVsExp(series, mIdx);
+      renderChart2ExpensesDonut(mIdx, despesasTotais);
+      renderChart3SavingsEvolution(series, mIdx);
+    }
+
+    function renderChart1RevVsExp(series, selectedMonthIdx) {
+      const ctx = document.getElementById('chartRevVsExp').getContext('2d');
+      const labels = financialData.months.map(m => m.short);
+      const revColors = financialData.months.map((_, i) =>
+        selectedMonthIdx === null || selectedMonthIdx === i ? '#ff6b00' : 'rgba(255, 107, 0, 0.25)'
+      );
+      const expColors = financialData.months.map((_, i) =>
+        selectedMonthIdx === null || selectedMonthIdx === i ? '#ef4444' : 'rgba(239, 68, 68, 0.25)'
+      );
+
+      if (chartRevExp) chartRevExp.destroy();
+      chartRevExp = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Receitas (R$)', data: series.monthlyRev, backgroundColor: revColors, borderRadius: 4, barPercentage: 0.75 },
+            { label: 'Despesas (R$)', data: series.monthlyExp, backgroundColor: expColors, borderRadius: 4, barPercentage: 0.75 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { position: 'top', align: 'end', labels: { color: '#cbd5e1', boxWidth: 10, font: { size: 11 } } },
+            tooltip: {
+              backgroundColor: '#14171f',
+              borderColor: 'rgba(255,255,255,0.12)',
+              borderWidth: 1,
+              callbacks: { label: c => `${c.dataset.label}: ${formatBRL(c.raw)}` }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } },
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => 'R$ ' + v.toLocaleString('pt-BR') },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderChart2ExpensesDonut(selectedMonthIdx, totalExp) {
+      const ctx = document.getElementById('chartExpDonut').getContext('2d');
+      const catSummary = financialData.expenses.map(cat => {
+        const val = selectedMonthIdx === null
+          ? cat.values.reduce((a, b) => a + b, 0)
+          : cat.values[selectedMonthIdx];
+        const pct = totalExp > 0 ? (val / totalExp) * 100 : 0;
+        return { name: cat.name, color: cat.color, val, pct };
+      });
+
+      const legendEl = document.getElementById('expenseLegendList');
+      legendEl.innerHTML = catSummary.map(c => `
+        <div class="cat-item">
+          <span class="cat-name">
+            <span class="cat-dot" style="background:${c.color}"></span>
+            ${c.name}
+          </span>
+          <span class="cat-val">${formatBRL(c.val)} (${formatPct(c.pct)})</span>
+        </div>
+      `).join('');
+
+      if (chartDonut) chartDonut.destroy();
+      chartDonut = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: catSummary.map(c => c.name),
+          datasets: [{
+            data: catSummary.map(c => c.val),
+            backgroundColor: catSummary.map(c => c.color),
+            borderColor: '#14171f',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '66%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#14171f',
+              borderColor: 'rgba(255,255,255,0.12)',
+              borderWidth: 1,
+              callbacks: {
+                label: c => {
+                  const item = catSummary[c.dataIndex];
+                  return `${item.name}: ${formatBRL(item.val)} (${formatPct(item.pct)})`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderChart3SavingsEvolution(series, selectedMonthIdx) {
+      const ctx = document.getElementById('chartSavingsLine').getContext('2d');
+      const labels = financialData.months.map(m => m.short);
+      const finalVal = selectedMonthIdx === null
+        ? series.cumulativeSavings[11]
+        : series.cumulativeSavings[selectedMonthIdx];
+
+      document.getElementById('finalSavingsHighlight').textContent =
+        selectedMonthIdx === null
+          ? `Final Previsto: ${formatBRL(finalVal)}`
+          : `Até ${financialData.months[selectedMonthIdx].short}: ${formatBRL(finalVal)}`;
+
+      const pointRadii = financialData.months.map((_, i) => {
+        if (selectedMonthIdx !== null) return i === selectedMonthIdx ? 6 : 3.5;
+        return i === 11 ? 6 : 3.5;
+      });
+
+      const pointColors = financialData.months.map((_, i) => {
+        if (selectedMonthIdx !== null) return i === selectedMonthIdx ? '#ff6b00' : '#10b981';
+        return i === 11 ? '#ff6b00' : '#10b981';
+      });
+
+      if (chartSavings) chartSavings.destroy();
+      chartSavings = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Poupança Acumulada (R$)',
+            data: series.cumulativeSavings,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.14)',
+            fill: true,
+            borderWidth: 2.5,
+            pointRadius: pointRadii,
+            pointBackgroundColor: pointColors,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1.5,
+            tension: 0.25
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#14171f',
+              borderColor: 'rgba(255,255,255,0.12)',
+              borderWidth: 1,
+              callbacks: { label: c => `Poupança Acumulada: ${formatBRL(c.raw)}` }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } },
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => 'R$ ' + v.toLocaleString('pt-BR') },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            }
+          }
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', updateDashboard);
+  </script>
+</body>
+</html>
