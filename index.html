@@ -230,7 +230,7 @@
     /* 3 GRÁFICOS CENTRAIS */
     .charts-grid {
       display: grid;
-      grid-template-columns: 1.18fr 1.24fr 1.18fr;
+      grid-template-columns: 1.12fr 1.36fr 1.12fr;
       gap: 16px;
     }
 
@@ -282,20 +282,20 @@
       width: 100%;
     }
 
-    /* Lista limpa de categorias do Gráfico 2 (Valores e Percentuais na mesma linha) */
+    /* Lista limpa de categorias do Gráfico 2 (Valores, Percentuais e Status na mesma linha) */
     .donut-layout {
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      gap: 18px;
+      gap: 14px;
       height: 250px;
     }
 
     .canvas-box-donut {
       position: relative;
-      width: 160px;
-      height: 160px;
+      width: 145px;
+      height: 145px;
       flex-shrink: 0;
     }
 
@@ -303,8 +303,8 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding-left: 16px;
+      gap: 9px;
+      padding-left: 14px;
       border-left: 1px solid var(--border-color);
     }
 
@@ -312,7 +312,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       font-size: 12px;
       white-space: nowrap;
     }
@@ -320,7 +320,7 @@
     .cat-name {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       color: var(--text-gray);
       font-weight: 500;
       white-space: nowrap;
@@ -331,6 +331,40 @@
       height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
+    }
+
+    .cat-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .status-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    .status-paid {
+      background: var(--green-soft);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .status-pending {
+      background: var(--orange-soft);
+      color: var(--orange);
+      border: 1px solid rgba(255, 107, 0, 0.3);
+    }
+
+    .status-none {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text-muted);
     }
 
     .cat-val {
@@ -529,7 +563,7 @@
         <div class="chart-header">
           <div>
             <h2>2. Distribuição das Despesas</h2>
-            <p>Participação de cada categoria nos gastos (R$ e %)</p>
+            <p>Participação nos gastos e status de pagamento</p>
           </div>
         </div>
         <div class="donut-layout">
@@ -606,18 +640,49 @@
         salarioTotal: [4686, 4580, 4510, 4510, 4470, 4470, 6270, 4470, 4355, 3996, 3996, 3996]
       },
       expenses: [
-        { name: 'Casa',     color: '#ff6b00', values: [800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800] },
-        { name: 'Nubank',   color: '#ef4444', values: [556, 556, 512, 512, 405, 405, 365, 365, 365, 0,   0,   0]   },
-        { name: 'Dízimo',   color: '#f59e0b', values: [290, 290, 290, 290, 290, 290, 290, 290, 290, 290, 290, 290] },
-        { name: 'Débito',   color: '#3b82f6', values: [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150] },
-        { name: 'Itaú',     color: '#64748b', values: [0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]   },
-        { name: 'Internet', color: '#475569', values: [0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]   }
+        {
+          name: 'Casa',
+          color: '#ff6b00',
+          values: [800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800, 800],
+          paid:   [false, false, false, false, false, false, false, false, false, false, false, false]
+        },
+        {
+          name: 'Nubank',
+          color: '#ef4444',
+          values: [556, 556, 512, 512, 405, 405, 365, 365, 365, 0, 0, 0],
+          paid:   [false, false, false, false, false, false, false, false, false, false, false, false]
+        },
+        {
+          name: 'Dízimo',
+          color: '#f59e0b',
+          values: [290, 290, 290, 290, 290, 290, 290, 290, 290, 290, 290, 290],
+          paid:   [false, false, false, false, false, false, false, false, false, false, false, false]
+        },
+        {
+          name: 'Débito',
+          color: '#3b82f6',
+          values: [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
+          paid:   [false, false, false, false, false, false, false, false, false, false, false, false]
+        },
+        {
+          name: 'Itaú',
+          color: '#64748b',
+          values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          paid:   [false, false, false, false, false, false, false, false, false, false, false, false]
+        },
+        {
+          name: 'Internet',
+          color: '#475569',
+          values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          paid:   [false, false, false, false, false, false, false, false, false, false, false, false]
+        }
       ],
       saldoDisponivelMensal: [2890, 2784, 2758, 2758, 2825, 2825, 4665, 2865, 2750, 2756, 2756, 2756],
       poupancaAcumuladaMensal: [2890, 5674, 8432, 11190, 14015, 16840, 21505, 24370, 27120, 29876, 32632, 35388],
       debtor: {
         name: 'Bianca',
         monthly2027: [1696, 1590, 1520, 1520, 1480, 1480, 1480, 1480, 1365, 1006, 1006, 1006],
+        paid2027:    [false, false, false, false, false, false, false, false, false, false, false, false],
         extra2028: 2012,
         totalHistorical2026_2027: 22410
       }
@@ -694,7 +759,12 @@
       document.getElementById('valPoupancaAcumulada').textContent = formatBRL(poupancaAcumulada);
 
       const debtor2027Total = financialData.debtor.monthly2027.reduce((a, b) => a + b, 0);
-      const debtorPendingAll = debtor2027Total + financialData.debtor.extra2028;
+      const debtorPaid2027 = financialData.debtor.monthly2027.reduce(
+        (acc, val, idx) => acc + (financialData.debtor.paid2027?.[idx] ? val : 0),
+        0
+      );
+      const debtorPending2027 = debtor2027Total - debtorPaid2027;
+      const debtorPendingAll = debtorPending2027 + financialData.debtor.extra2028;
 
       document.getElementById('debtorPersonName').textContent = financialData.debtor.name;
       if (isAll) {
@@ -702,11 +772,13 @@
         document.getElementById('debtorScheduledValue').textContent = formatBRL(debtor2027Total);
       } else {
         const mName = financialData.months[mIdx].name;
-        document.getElementById('debtorScheduledLabel').textContent = `Previsto em ${mName}`;
+        const isDebPaid = financialData.debtor.paid2027?.[mIdx];
+        document.getElementById('debtorScheduledLabel').textContent =
+          `Previsto em ${mName} (${isDebPaid ? '✓ Pago' : 'Pendente'})`;
         document.getElementById('debtorScheduledValue').textContent = formatBRL(financialData.debtor.monthly2027[mIdx]);
       }
       document.getElementById('debtorPendingTotal').textContent =
-        `${formatBRL(debtor2027Total)} (2027) | ${formatBRL(debtorPendingAll)} (até Fev/28)`;
+        `${formatBRL(debtorPending2027)} (2027) | ${formatBRL(debtorPendingAll)} (até Fev/28)`;
       document.getElementById('debtorHistoricalTotal').textContent =
         formatBRL(financialData.debtor.totalHistorical2026_2027);
 
@@ -767,7 +839,37 @@
           ? cat.values.reduce((a, b) => a + b, 0)
           : cat.values[selectedMonthIdx];
         const pct = totalExp > 0 ? (val / totalExp) * 100 : 0;
-        return { name: cat.name, color: cat.color, val, pct };
+
+        let statusText = '';
+        let statusClass = 'status-none';
+
+        if (selectedMonthIdx === null) {
+          const activeMonthsCount = cat.values.filter(v => v > 0).length;
+          const paidMonthsCount = cat.values.filter((v, idx) => v > 0 && cat.paid?.[idx]).length;
+          if (activeMonthsCount === 0) {
+            statusText = '—';
+            statusClass = 'status-none';
+          } else if (paidMonthsCount === activeMonthsCount) {
+            statusText = '✓ Quitada';
+            statusClass = 'status-paid';
+          } else {
+            statusText = `${paidMonthsCount}/${activeMonthsCount} pagos`;
+            statusClass = paidMonthsCount > 0 ? 'status-paid' : 'status-pending';
+          }
+        } else {
+          if (val === 0) {
+            statusText = '—';
+            statusClass = 'status-none';
+          } else if (cat.paid?.[selectedMonthIdx]) {
+            statusText = '✓ Pago';
+            statusClass = 'status-paid';
+          } else {
+            statusText = 'Pendente';
+            statusClass = 'status-pending';
+          }
+        }
+
+        return { name: cat.name, color: cat.color, val, pct, statusText, statusClass };
       });
 
       const legendEl = document.getElementById('expenseLegendList');
@@ -777,7 +879,10 @@
             <span class="cat-dot" style="background:${c.color}"></span>
             ${c.name}
           </span>
-          <span class="cat-val">${formatBRL(c.val)} (${formatPct(c.pct)})</span>
+          <span class="cat-right">
+            <span class="status-pill ${c.statusClass}">${c.statusText}</span>
+            <span class="cat-val">${formatBRL(c.val)} (${formatPct(c.pct)})</span>
+          </span>
         </div>
       `).join('');
 
@@ -806,7 +911,7 @@
               callbacks: {
                 label: c => {
                   const item = catSummary[c.dataIndex];
-                  return `${item.name}: ${formatBRL(item.val)} (${formatPct(item.pct)})`;
+                  return `${item.name}: ${formatBRL(item.val)} (${formatPct(item.pct)}) • ${item.statusText}`;
                 }
               }
             }
